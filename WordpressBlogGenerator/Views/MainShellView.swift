@@ -29,7 +29,9 @@ struct MainShellView: View {
         }
         .toolbar {
             Button("Logout") {
-                session.logout()
+                Task {
+                    await session.logout()
+                }
             }
         }
     }

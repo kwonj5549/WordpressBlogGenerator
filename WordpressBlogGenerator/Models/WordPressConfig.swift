@@ -14,7 +14,7 @@ struct WordPressConfig: Codable {
     static let `default` = WordPressConfig(
         model: "gpt-4.5-preview",
         useCustomPrompt: false,
-        customPrompt: "Write a very long and detailed blog post about {topic} with a concise and appealing title, a summary of the whole blog post right below, and the full content in the style of an expert with 15 years of experience without explicitly mentioning this.",
+        customPrompt: "Write a very long and detailied blog post about {topic} with a concise and appealing title, a summary of the whole blog post right below, and the full content in the style of an expert with 15 years of experience without explicitly mentioning this.",
         autosend: false,
         frequencyPenalty: 0,
         presencePenalty: 0.35,

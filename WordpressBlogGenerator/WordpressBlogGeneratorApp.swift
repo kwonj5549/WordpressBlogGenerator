@@ -9,9 +9,29 @@ import SwiftUI
 
 @main
 struct WordpressBlogGeneratorApp: App {
+    @StateObject private var session = UserSession()
+
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            RootView()
+                .environmentObject(session)
+        }
+    }
+}
+
+struct RootView: View {
+    @EnvironmentObject var session: UserSession
+
+    var body: some View {
+        Group {
+            if true {
+                MainShellView()
+            } else {
+                AuthView()
+            }
+        }
+        .task {
+            await session.loadCurrentUser()
         }
     }
 }

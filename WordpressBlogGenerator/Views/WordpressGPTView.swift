@@ -78,6 +78,23 @@ struct WordpressGPTView: View {
     private var siteURLSection: some View {
         GroupBox("Site") {
             VStack(alignment: .leading, spacing: 12) {
+                if let selected = viewModel.siteOptions.first(where: { $0.url == viewModel.selectedSiteURL }),
+                   let imageUrl = selected.imageUrl,
+                   let url = URL(string: imageUrl) {
+                    AsyncImage(url: url) { phase in
+                        switch phase {
+                        case .empty:
+                            ProgressView()
+                        case .success(let image):
+                            image.resizable().scaledToFit()
+                        default:
+                            Image(systemName: "photo")
+                        }
+                    }
+                    .frame(width: 48, height: 48)
+                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                }
+
                 HStack {
                     Text("Site")
                     Picker("Site", selection: $viewModel.selectedSiteURL) {
@@ -87,8 +104,9 @@ struct WordpressGPTView: View {
                                 .tag("")
                         } else {
                             ForEach(viewModel.siteOptions) { site in
-                                Text(site.name).tag(site.url)
+                                Text(site.name).tag(site.url as String)
                             }
+
                         }
                     }
                     .pickerStyle(.menu)
@@ -432,29 +450,21 @@ struct WordPressSiteURLResponse: Codable {
 struct WordPressSitesResponse: Codable {
     let sites: [WordPressSite]
 }
-
 struct WordPressSite: Codable, Identifiable, Hashable {
-    let id: String
+    // Use url as a stable id (works great for Pickers / ForEach)
+    var id: String { url }
+
     let name: String
     let url: String
+    let imageUrl: String?
 
     private enum CodingKeys: String, CodingKey {
-        case id
         case name
         case url
-    }
-
-    init(from decoder: Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        if let intId = try? container.decode(Int.self, forKey: .id) {
-            id = String(intId)
-        } else {
-            id = try container.decode(String.self, forKey: .id)
-        }
-        url = try container.decode(String.self, forKey: .url)
-        name = (try? container.decode(String.self, forKey: .name)) ?? url
+        case imageUrl
     }
 }
+
 
 struct WordPressGenerateRequest: Codable {
     let prompt: String

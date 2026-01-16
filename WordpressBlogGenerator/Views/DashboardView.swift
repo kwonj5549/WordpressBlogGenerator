@@ -46,7 +46,7 @@ struct DashboardView: View {
         isLoading = true
         errorMessage = nil
         do {
-            let response: StatsSummary = try await session.request("stats/summary")
+            let response: StatsSummary = try await session.apiClient.request("stats/summary")
             summary = response
         } catch {
             errorMessage = error.localizedDescription

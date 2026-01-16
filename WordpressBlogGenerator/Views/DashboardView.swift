@@ -30,8 +30,11 @@ struct DashboardView: View {
                     StatCard(title: "Most Used Model", value: summary?.mostUsedModel ?? "--", detail: "By usage")
                 }
 
-                PostsGeneratedChart(summary: summary)
-                ModelDistributionChart(summary: summary)
+                LazyVGrid(columns: [GridItem(.adaptive(minimum: 420), spacing: 16)], spacing: 16) {
+                    PostsGeneratedChart(summary: summary)
+                    ModelDistributionChart(summary: summary)
+                }
+
             }
         }
         .padding(24)

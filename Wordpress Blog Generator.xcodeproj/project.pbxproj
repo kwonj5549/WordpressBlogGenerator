@@ -6,8 +6,12 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		D5492F152F1AFFF900638B09 /* Sparkle in Frameworks */ = {isa = PBXBuildFile; productRef = D5492F142F1AFFF900638B09 /* Sparkle */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
-		D51204102F19DEDF0044F9FE /* WordpressBlogGenerator.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WordpressBlogGenerator.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		D51204102F19DEDF0044F9FE /* Wordpress Blog Generator.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Wordpress Blog Generator.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -23,6 +27,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D5492F152F1AFFF900638B09 /* Sparkle in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -40,7 +45,7 @@
 		D51204112F19DEDF0044F9FE /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				D51204102F19DEDF0044F9FE /* WordpressBlogGenerator.app */,
+				D51204102F19DEDF0044F9FE /* Wordpress Blog Generator.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -48,9 +53,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		D512040F2F19DEDF0044F9FE /* WordpressBlogGenerator */ = {
+		D512040F2F19DEDF0044F9FE /* Wordpress Blog Generator */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = D512041B2F19DEDF0044F9FE /* Build configuration list for PBXNativeTarget "WordpressBlogGenerator" */;
+			buildConfigurationList = D512041B2F19DEDF0044F9FE /* Build configuration list for PBXNativeTarget "Wordpress Blog Generator" */;
 			buildPhases = (
 				D512040C2F19DEDF0044F9FE /* Sources */,
 				D512040D2F19DEDF0044F9FE /* Frameworks */,
@@ -63,11 +68,12 @@
 			fileSystemSynchronizedGroups = (
 				D51204122F19DEDF0044F9FE /* WordpressBlogGenerator */,
 			);
-			name = WordpressBlogGenerator;
+			name = "Wordpress Blog Generator";
 			packageProductDependencies = (
+				D5492F142F1AFFF900638B09 /* Sparkle */,
 			);
 			productName = WordpressBlogGenerator;
-			productReference = D51204102F19DEDF0044F9FE /* WordpressBlogGenerator.app */;
+			productReference = D51204102F19DEDF0044F9FE /* Wordpress Blog Generator.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -85,7 +91,7 @@
 					};
 				};
 			};
-			buildConfigurationList = D512040B2F19DEDF0044F9FE /* Build configuration list for PBXProject "WordpressBlogGenerator" */;
+			buildConfigurationList = D512040B2F19DEDF0044F9FE /* Build configuration list for PBXProject "Wordpress Blog Generator" */;
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -94,12 +100,15 @@
 			);
 			mainGroup = D51204072F19DEDF0044F9FE;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				D5492F132F1AFFF900638B09 /* XCRemoteSwiftPackageReference "Sparkle" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = D51204112F19DEDF0044F9FE /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				D512040F2F19DEDF0044F9FE /* WordpressBlogGenerator */,
+				D512040F2F19DEDF0044F9FE /* Wordpress Blog Generator */,
 			);
 		};
 /* End PBXProject section */
@@ -270,6 +279,7 @@
 				ENABLE_RESOURCE_ACCESS_USB = NO;
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Wordpress-Blog-Generator-Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "Wordpress Blog Generator";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -314,6 +324,7 @@
 				ENABLE_RESOURCE_ACCESS_USB = NO;
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Wordpress-Blog-Generator-Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "Wordpress Blog Generator";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -336,7 +347,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		D512040B2F19DEDF0044F9FE /* Build configuration list for PBXProject "WordpressBlogGenerator" */ = {
+		D512040B2F19DEDF0044F9FE /* Build configuration list for PBXProject "Wordpress Blog Generator" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				D51204192F19DEDF0044F9FE /* Debug */,
@@ -345,7 +356,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		D512041B2F19DEDF0044F9FE /* Build configuration list for PBXNativeTarget "WordpressBlogGenerator" */ = {
+		D512041B2F19DEDF0044F9FE /* Build configuration list for PBXNativeTarget "Wordpress Blog Generator" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				D512041C2F19DEDF0044F9FE /* Debug */,
@@ -355,6 +366,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		D5492F132F1AFFF900638B09 /* XCRemoteSwiftPackageReference "Sparkle" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/sparkle-project/Sparkle";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.8.1;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		D5492F142F1AFFF900638B09 /* Sparkle */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D5492F132F1AFFF900638B09 /* XCRemoteSwiftPackageReference "Sparkle" */;
+			productName = Sparkle;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = D51204082F19DEDF0044F9FE /* Project object */;
 }

@@ -15,13 +15,22 @@ final class UserSession: ObservableObject {
     private(set) var accessToken: String?
 
     var apiClient: APIClient {
-        APIClient(baseURL: URL(string: "https://api.example.com")!, accessToken: accessToken)
+        APIClient(baseURL: APIConfig.baseURL, accessToken: accessToken)
     }
 
     func loadCurrentUser() async {
-        guard accessToken != nil || refreshToken != nil else {
+        guard refreshToken != nil else {
             isAuthenticated = false
             return
+        }
+
+        if accessToken == nil {
+            do {
+                try await refresh()
+            } catch {
+                clearSession()
+                return
+            }
         }
 
         do {
@@ -47,11 +56,14 @@ final class UserSession: ObservableObject {
         handleAuthResponse(response)
     }
 
-    func logout() {
-        accessToken = nil
-        KeychainStore.shared.delete(service: keychainService, account: refreshTokenKey)
-        user = nil
-        isAuthenticated = false
+    func logout() async {
+        if let refreshToken {
+            let body = LogoutRequest(refreshToken: refreshToken)
+            if let data = try? JSONEncoder().encode(body) {
+                _ = try? await apiClient.request("auth/logout", method: "POST", body: data) as APIClient.EmptyResponse
+            }
+        }
+        clearSession()
     }
 
     func refresh() async throws {
@@ -68,6 +80,13 @@ final class UserSession: ObservableObject {
         accessToken = response.accessToken
         saveRefreshToken(response.refreshToken)
         isAuthenticated = true
+    }
+
+    private func clearSession() {
+        accessToken = nil
+        KeychainStore.shared.delete(service: keychainService, account: refreshTokenKey)
+        user = nil
+        isAuthenticated = false
     }
 
     private var refreshToken: String? {
@@ -111,5 +130,9 @@ struct RegisterRequest: Codable {
 }
 
 struct RefreshRequest: Codable {
+    let refreshToken: String
+}
+
+struct LogoutRequest: Codable {
     let refreshToken: String
 }

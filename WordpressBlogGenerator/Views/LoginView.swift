@@ -5,6 +5,7 @@ struct LoginView: View {
     @State private var email = ""
     @State private var password = ""
     @State private var errorMessage: String?
+    @State private var isLoading = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -22,16 +23,20 @@ struct LoginView: View {
                     .foregroundStyle(.red)
             }
 
-            Button("Sign In") {
+            Button(isLoading ? "Signing In..." : "Sign In") {
                 Task {
+                    errorMessage = nil
+                    isLoading = true
                     do {
                         try await session.login(email: email, password: password)
                     } catch {
-                        errorMessage = "Login failed. Please try again."
+                        errorMessage = error.localizedDescription
                     }
+                    isLoading = false
                 }
             }
             .buttonStyle(.borderedProminent)
+            .disabled(isLoading)
         }
     }
 }

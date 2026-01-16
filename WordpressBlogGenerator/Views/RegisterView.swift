@@ -6,6 +6,7 @@ struct RegisterView: View {
     @State private var email = ""
     @State private var password = ""
     @State private var errorMessage: String?
+    @State private var isLoading = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -26,16 +27,20 @@ struct RegisterView: View {
                     .foregroundStyle(.red)
             }
 
-            Button("Sign Up") {
+            Button(isLoading ? "Signing Up..." : "Sign Up") {
                 Task {
+                    errorMessage = nil
+                    isLoading = true
                     do {
                         try await session.register(name: name, email: email, password: password)
                     } catch {
-                        errorMessage = "Registration failed. Please try again."
+                        errorMessage = error.localizedDescription
                     }
+                    isLoading = false
                 }
             }
             .buttonStyle(.borderedProminent)
+            .disabled(isLoading)
         }
     }
 }

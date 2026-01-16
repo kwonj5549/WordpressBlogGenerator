@@ -299,7 +299,7 @@ final class WordpressGPTViewModel: ObservableObject {
     func startAuth(session: UserSession, openURL: OpenURLAction) async {
         errorMessage = nil
         do {
-            let response: WordPressAuthStartResponse = try await session.apiClient.request("wp/auth/start")
+            let response: WordPressAuthStartResponse = try await session.request("wp/auth/start")
             if let url = URL(string: response.authUrl) {
                 openURL(url)
                 statusMessage = "Complete authentication in your browser, then check status."
@@ -312,7 +312,7 @@ final class WordpressGPTViewModel: ObservableObject {
     func fetchAuthStatus(session: UserSession) async {
         errorMessage = nil
         do {
-            let response: WordPressAuthStatusResponse = try await session.apiClient.request("wp/auth/status")
+            let response: WordPressAuthStatusResponse = try await session.request("wp/auth/status")
             wpAuthStatus = response.wpAuthStatus
             statusMessage = wpAuthStatus ? "WordPress authentication active." : "WordPress authentication required."
         } catch {
@@ -323,7 +323,7 @@ final class WordpressGPTViewModel: ObservableObject {
     func revokeAuth(session: UserSession) async {
         errorMessage = nil
         do {
-            _ = try await session.apiClient.request("wp/auth/revoke", method: "POST") as APIClient.EmptyResponse
+            _ = try await session.request("wp/auth/revoke", method: "POST") as APIClient.EmptyResponse
             wpAuthStatus = false
             statusMessage = "WordPress access revoked."
         } catch {
@@ -333,7 +333,7 @@ final class WordpressGPTViewModel: ObservableObject {
 
     func fetchSiteURL(session: UserSession) async {
         do {
-            let response: WordPressSiteURLResponse = try await session.apiClient.request("wp/site-url")
+            let response: WordPressSiteURLResponse = try await session.request("wp/site-url")
             siteURL = response.siteUrl ?? ""
             updateSelectedSiteURL(from: siteURL)
         } catch {
@@ -345,7 +345,7 @@ final class WordpressGPTViewModel: ObservableObject {
         isLoadingSites = true
         defer { isLoadingSites = false }
         do {
-            let response: WordPressSitesResponse = try await session.apiClient.request("wp/sites")
+            let response: WordPressSitesResponse = try await session.request("wp/sites")
             siteOptions = response.sites
             updateSelectedSiteURL(from: siteURL)
         } catch {
@@ -358,7 +358,7 @@ final class WordpressGPTViewModel: ObservableObject {
         let request = WordPressSiteURLRequest(siteUrl: siteURL)
         do {
             let data = try JSONEncoder().encode(request)
-            _ = try await session.apiClient.request("wp/site-url", method: "POST", body: data) as APIClient.EmptyResponse
+            _ = try await session.request("wp/site-url", method: "POST", body: data) as APIClient.EmptyResponse
             statusMessage = "Site URL saved."
             updateSelectedSiteURL(from: siteURL)
         } catch {
@@ -368,7 +368,7 @@ final class WordpressGPTViewModel: ObservableObject {
 
     func fetchConfig(session: UserSession) async {
         do {
-            let response: WordPressConfig = try await session.apiClient.request("wp/config")
+            let response: WordPressConfig = try await session.request("wp/config")
             config = response
             if !modelOptions.isEmpty,
                !modelOptions.contains(where: { $0.value == config.model }),
@@ -384,7 +384,7 @@ final class WordpressGPTViewModel: ObservableObject {
         isLoadingModels = true
         defer { isLoadingModels = false }
         do {
-            let response: ModelsResponse = try await session.apiClient.request("models")
+            let response: ModelsResponse = try await session.request("models")
             modelOptions = response.models
             if !modelOptions.contains(where: { $0.value == config.model }),
                let firstModel = modelOptions.first {
@@ -400,7 +400,7 @@ final class WordpressGPTViewModel: ObservableObject {
         isSavingConfig = true
         do {
             let data = try JSONEncoder().encode(config)
-            _ = try await session.apiClient.request("wp/config", method: "POST", body: data) as APIClient.EmptyResponse
+            _ = try await session.request("wp/config", method: "POST", body: data) as APIClient.EmptyResponse
             statusMessage = "Config saved."
         } catch {
             errorMessage = error.localizedDescription
@@ -426,7 +426,7 @@ final class WordpressGPTViewModel: ObservableObject {
 
         do {
             let data = try JSONEncoder().encode(request)
-            let response: WordPressGenerateResponse = try await session.apiClient.request("wp/generate", method: "POST", body: data)
+            let response: WordPressGenerateResponse = try await session.request("wp/generate", method: "POST", body: data)
             if let generation = response.generations.first {
                 responseTitle = generation.title
                 responseContent = generation.htmlContent

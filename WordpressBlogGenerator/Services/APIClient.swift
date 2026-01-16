@@ -5,14 +5,14 @@ struct APIClient {
 
     enum APIError: LocalizedError {
         case invalidResponse
-        case server(message: String)
+        case server(statusCode: Int, message: String)
         case decoding
 
         var errorDescription: String? {
             switch self {
             case .invalidResponse:
                 return "Invalid server response."
-            case .server(let message):
+            case .server(_, let message):
                 return message
             case .decoding:
                 return "Unable to read server response."
@@ -43,8 +43,9 @@ struct APIClient {
         }
 
         guard (200..<300).contains(httpResponse.statusCode) else {
-            let message = parseErrorMessage(from: data) ?? "Request failed with status code \(httpResponse.statusCode)."
-            throw APIError.server(message: message)
+            let statusCode = httpResponse.statusCode
+            let message = parseErrorMessage(from: data) ?? "Request failed with status code \(statusCode)."
+            throw APIError.server(statusCode: statusCode, message: message)
         }
 
         if data.isEmpty {

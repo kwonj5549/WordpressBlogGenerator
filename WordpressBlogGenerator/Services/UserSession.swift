@@ -19,6 +19,24 @@ final class UserSession: ObservableObject {
         APIClient(baseURL: APIConfig.baseURL, accessToken: accessToken)
     }
 
+    func request<T: Decodable>(
+        _ path: String,
+        method: String = "GET",
+        body: Data? = nil
+    ) async throws -> T {
+        do {
+            return try await apiClient.request(path, method: method, body: body)
+        } catch let APIClient.APIError.server(statusCode, _) where statusCode == 401 {
+            do {
+                try await refresh()
+                return try await apiClient.request(path, method: method, body: body)
+            } catch {
+                clearSession()
+                throw error
+            }
+        }
+    }
+
     func loadCurrentUser() async {
         defer { isLoading = false }
         guard refreshToken != nil else {
@@ -36,7 +54,7 @@ final class UserSession: ObservableObject {
         }
 
         do {
-            let response: UserResponse = try await apiClient.request("auth/me")
+            let response: UserResponse = try await request("auth/me")
             user = response.user
             isAuthenticated = true
         } catch {

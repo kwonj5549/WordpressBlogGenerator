@@ -8,6 +8,7 @@ final class UserSession: ObservableObject {
 
     @Published var user: User?
     @Published var isAuthenticated: Bool = false
+    @Published var isLoading: Bool = true
 
     private let refreshTokenKey = "refreshToken"
     private let keychainService = "GPTToolkitMacApp"
@@ -19,6 +20,7 @@ final class UserSession: ObservableObject {
     }
 
     func loadCurrentUser() async {
+        defer { isLoading = false }
         guard refreshToken != nil else {
             isAuthenticated = false
             return

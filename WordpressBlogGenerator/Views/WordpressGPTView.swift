@@ -7,31 +7,51 @@ struct WordpressGPTView: View {
     @StateObject private var viewModel = WordpressGPTViewModel()
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 16) {
-                header
-
-                if let statusMessage = viewModel.statusMessage {
-                    Text(statusMessage)
-                        .foregroundStyle(.secondary)
-                }
-
-                if let errorMessage = viewModel.errorMessage {
-                    Text(errorMessage)
-                        .foregroundStyle(.red)
-                }
-
-                authSection
-                siteURLSection
-                promptSection
-                responseSection
-                configSection
+        HStack(alignment: .top, spacing: 24) {
+            ScrollView {
+                mainContent
             }
-            .padding(24)
+            .frame(maxWidth: .infinity, alignment: .leading)
+
+            Divider()
+
+            ScrollView {
+                advancedSidebar
+            }
+            .frame(minWidth: 280, idealWidth: 320, maxWidth: 360, alignment: .top)
         }
+        .padding(24)
         .task {
             await viewModel.loadInitialData(session: session)
         }
+    }
+
+    private var mainContent: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            header
+
+            if let statusMessage = viewModel.statusMessage {
+                Text(statusMessage)
+                    .foregroundStyle(.secondary)
+            }
+
+            if let errorMessage = viewModel.errorMessage {
+                Text(errorMessage)
+                    .foregroundStyle(.red)
+            }
+
+            authSection
+            siteURLSection
+            promptSection
+            responseSection
+        }
+    }
+
+    private var advancedSidebar: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            configSection
+        }
+        .frame(maxWidth: .infinity, alignment: .topLeading)
     }
 
     private var header: some View {

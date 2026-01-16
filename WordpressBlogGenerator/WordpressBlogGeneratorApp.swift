@@ -24,7 +24,9 @@ struct RootView: View {
 
     var body: some View {
         Group {
-            if session.isAuthenticated {
+            if session.isLoading {
+                ProgressView()
+            } else if session.isAuthenticated {
                 MainShellView()
             } else {
                 AuthView()

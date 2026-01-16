@@ -129,8 +129,22 @@ struct WordpressGPTView: View {
             VStack(alignment: .leading, spacing: 12) {
                 HStack {
                     Text("Model")
-                    TextField("Model", text: $viewModel.config.model)
-                        .textFieldStyle(.roundedBorder)
+                    Picker("Model", selection: $viewModel.config.model) {
+                        if viewModel.modelOptions.isEmpty {
+                            Text(viewModel.isLoadingModels ? "Loading models..." : "No models available")
+                                .tag(viewModel.config.model)
+                        } else {
+                            ForEach(viewModel.modelOptions, id: \.value) { option in
+                                Text(option.label).tag(option.value)
+                            }
+                        }
+                    }
+                    .pickerStyle(.menu)
+                }
+                if let description = viewModel.selectedModelOption?.description {
+                    Text(description)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
                 }
 
                 Toggle("Use Custom Prompt", isOn: $viewModel.config.useCustomPrompt)
@@ -190,12 +204,19 @@ final class WordpressGPTViewModel: ObservableObject {
     @Published var errorMessage: String?
     @Published var isGenerating = false
     @Published var isSavingConfig = false
+    @Published var isLoadingModels = false
+    @Published var modelOptions: [ModelOption] = []
+
+    var selectedModelOption: ModelOption? {
+        modelOptions.first { $0.value == config.model }
+    }
 
     func loadInitialData(session: UserSession) async {
         await withTaskGroup(of: Void.self) { group in
             group.addTask { await self.fetchAuthStatus(session: session) }
             group.addTask { await self.fetchSiteURL(session: session) }
             group.addTask { await self.fetchConfig(session: session) }
+            group.addTask { await self.fetchModelOptions(session: session) }
         }
     }
 
@@ -259,6 +280,26 @@ final class WordpressGPTViewModel: ObservableObject {
         do {
             let response: WordPressConfig = try await session.apiClient.request("wp/config")
             config = response
+            if !modelOptions.isEmpty,
+               !modelOptions.contains(where: { $0.value == config.model }),
+               let firstModel = modelOptions.first {
+                config.model = firstModel.value
+            }
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+    }
+
+    func fetchModelOptions(session: UserSession) async {
+        isLoadingModels = true
+        defer { isLoadingModels = false }
+        do {
+            let response: ModelsResponse = try await session.apiClient.request("models")
+            modelOptions = response.models
+            if !modelOptions.contains(where: { $0.value == config.model }),
+               let firstModel = modelOptions.first {
+                config.model = firstModel.value
+            }
         } catch {
             errorMessage = error.localizedDescription
         }
@@ -342,6 +383,17 @@ struct WordPressGenerateResponse: Codable {
 struct WordPressGeneration: Codable {
     let title: String
     let htmlContent: String
+}
+
+struct ModelsResponse: Codable {
+    let models: [ModelOption]
+}
+
+struct ModelOption: Codable {
+    let value: String
+    let label: String
+    let description: String?
+    let requiresReasoning: Bool
 }
 
 #Preview {

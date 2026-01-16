@@ -22,4 +22,12 @@ struct User: Codable, Identifiable {
         wpAuthStatus = try container.decodeIfPresent(Bool.self, forKey: .wpAuthStatus)
             ?? container.decodeIfPresent(Bool.self, forKey: .wpAuthStatusUpper)
     }
+    
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(id, forKey: .id)
+        try container.encode(email, forKey: .email)
+        try container.encode(name, forKey: .name)
+        try container.encodeIfPresent(wpAuthStatus, forKey: .wpAuthStatus)
+    }
 }

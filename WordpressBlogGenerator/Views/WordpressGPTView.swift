@@ -1,4 +1,5 @@
 import SwiftUI
+import Combine
 
 struct WordpressGPTView: View {
     @EnvironmentObject var session: UserSession

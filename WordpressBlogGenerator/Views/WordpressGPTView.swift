@@ -76,10 +76,44 @@ struct WordpressGPTView: View {
     }
 
     private var siteURLSection: some View {
-        GroupBox("Site URL") {
-            HStack {
+        GroupBox("Site") {
+            VStack(alignment: .leading, spacing: 12) {
+                HStack {
+                    Text("Site")
+                    Picker("Site", selection: $viewModel.selectedSiteURL) {
+                        Text("Custom").tag("")
+                        if viewModel.siteOptions.isEmpty {
+                            Text(viewModel.isLoadingSites ? "Loading sites..." : "No sites available")
+                                .tag("")
+                        } else {
+                            ForEach(viewModel.siteOptions) { site in
+                                Text(site.name).tag(site.url)
+                            }
+                        }
+                    }
+                    .pickerStyle(.menu)
+                    .onChange(of: viewModel.selectedSiteURL) { newValue in
+                        if !newValue.isEmpty {
+                            viewModel.siteURL = newValue
+                        }
+                    }
+
+                    Button {
+                        Task {
+                            await viewModel.fetchSites(session: session)
+                        }
+                    } label: {
+                        Image(systemName: "arrow.clockwise")
+                    }
+                    .disabled(viewModel.isLoadingSites)
+                }
+
                 TextField("https://example.com", text: $viewModel.siteURL)
                     .textFieldStyle(.roundedBorder)
+                    .onChange(of: viewModel.siteURL) { newValue in
+                        viewModel.updateSelectedSiteURL(from: newValue)
+                    }
+
                 Button("Save") {
                     Task {
                         await viewModel.saveSiteURL(session: session)
@@ -205,7 +239,10 @@ final class WordpressGPTViewModel: ObservableObject {
     @Published var isGenerating = false
     @Published var isSavingConfig = false
     @Published var isLoadingModels = false
+    @Published var isLoadingSites = false
     @Published var modelOptions: [ModelOption] = []
+    @Published var siteOptions: [WordPressSite] = []
+    @Published var selectedSiteURL = ""
 
     var selectedModelOption: ModelOption? {
         modelOptions.first { $0.value == config.model }
@@ -215,6 +252,7 @@ final class WordpressGPTViewModel: ObservableObject {
         await withTaskGroup(of: Void.self) { group in
             group.addTask { await self.fetchAuthStatus(session: session) }
             group.addTask { await self.fetchSiteURL(session: session) }
+            group.addTask { await self.fetchSites(session: session) }
             group.addTask { await self.fetchConfig(session: session) }
             group.addTask { await self.fetchModelOptions(session: session) }
         }
@@ -259,6 +297,19 @@ final class WordpressGPTViewModel: ObservableObject {
         do {
             let response: WordPressSiteURLResponse = try await session.apiClient.request("wp/site-url")
             siteURL = response.siteUrl ?? ""
+            updateSelectedSiteURL(from: siteURL)
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+    }
+
+    func fetchSites(session: UserSession) async {
+        isLoadingSites = true
+        defer { isLoadingSites = false }
+        do {
+            let response: WordPressSitesResponse = try await session.apiClient.request("wp/sites")
+            siteOptions = response.sites
+            updateSelectedSiteURL(from: siteURL)
         } catch {
             errorMessage = error.localizedDescription
         }
@@ -271,6 +322,7 @@ final class WordpressGPTViewModel: ObservableObject {
             let data = try JSONEncoder().encode(request)
             _ = try await session.apiClient.request("wp/site-url", method: "POST", body: data) as APIClient.EmptyResponse
             statusMessage = "Site URL saved."
+            updateSelectedSiteURL(from: siteURL)
         } catch {
             errorMessage = error.localizedDescription
         }
@@ -350,6 +402,14 @@ final class WordpressGPTViewModel: ObservableObject {
 
         isGenerating = false
     }
+
+    func updateSelectedSiteURL(from url: String) {
+        if siteOptions.contains(where: { $0.url == url }) {
+            selectedSiteURL = url
+        } else {
+            selectedSiteURL = ""
+        }
+    }
 }
 
 struct WordPressAuthStartResponse: Codable {
@@ -367,6 +427,33 @@ struct WordPressSiteURLRequest: Codable {
 
 struct WordPressSiteURLResponse: Codable {
     let siteUrl: String?
+}
+
+struct WordPressSitesResponse: Codable {
+    let sites: [WordPressSite]
+}
+
+struct WordPressSite: Codable, Identifiable, Hashable {
+    let id: String
+    let name: String
+    let url: String
+
+    private enum CodingKeys: String, CodingKey {
+        case id
+        case name
+        case url
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        if let intId = try? container.decode(Int.self, forKey: .id) {
+            id = String(intId)
+        } else {
+            id = try container.decode(String.self, forKey: .id)
+        }
+        url = try container.decode(String.self, forKey: .url)
+        name = (try? container.decode(String.self, forKey: .name)) ?? url
+    }
 }
 
 struct WordPressGenerateRequest: Codable {

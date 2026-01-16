@@ -78,13 +78,27 @@ struct WordpressGPTView: View {
     private var siteURLSection: some View {
         GroupBox("Site URL") {
             HStack {
-                TextField("https://example.com", text: $viewModel.siteURL)
-                    .textFieldStyle(.roundedBorder)
+                Picker("Site", selection: $viewModel.siteURL) {
+                    if viewModel.siteOptions.isEmpty {
+                        Text(viewModel.isLoadingSites ? "Loading sites..." : "No sites available")
+                            .tag(viewModel.siteURL)
+                    } else {
+                        ForEach(viewModel.siteOptions, id: \.url) { option in
+                            Text(option.name ?? option.url).tag(option.url)
+                        }
+                    }
+                }
+                .pickerStyle(.menu)
                 Button("Save") {
                     Task {
                         await viewModel.saveSiteURL(session: session)
                     }
                 }
+            }
+            if let url = viewModel.selectedSiteOption?.url {
+                Text(url)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
             }
         }
     }
@@ -129,8 +143,22 @@ struct WordpressGPTView: View {
             VStack(alignment: .leading, spacing: 12) {
                 HStack {
                     Text("Model")
-                    TextField("Model", text: $viewModel.config.model)
-                        .textFieldStyle(.roundedBorder)
+                    Picker("Model", selection: $viewModel.config.model) {
+                        if viewModel.modelOptions.isEmpty {
+                            Text(viewModel.isLoadingModels ? "Loading models..." : "No models available")
+                                .tag(viewModel.config.model)
+                        } else {
+                            ForEach(viewModel.modelOptions, id: \.value) { option in
+                                Text(option.label).tag(option.value)
+                            }
+                        }
+                    }
+                    .pickerStyle(.menu)
+                }
+                if let description = viewModel.selectedModelOption?.description {
+                    Text(description)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
                 }
 
                 Toggle("Use Custom Prompt", isOn: $viewModel.config.useCustomPrompt)
@@ -190,12 +218,26 @@ final class WordpressGPTViewModel: ObservableObject {
     @Published var errorMessage: String?
     @Published var isGenerating = false
     @Published var isSavingConfig = false
+    @Published var isLoadingModels = false
+    @Published var modelOptions: [ModelOption] = []
+    @Published var isLoadingSites = false
+    @Published var siteOptions: [WordPressSiteOption] = []
+
+    var selectedModelOption: ModelOption? {
+        modelOptions.first { $0.value == config.model }
+    }
+
+    var selectedSiteOption: WordPressSiteOption? {
+        siteOptions.first { $0.url == siteURL }
+    }
 
     func loadInitialData(session: UserSession) async {
         await withTaskGroup(of: Void.self) { group in
             group.addTask { await self.fetchAuthStatus(session: session) }
             group.addTask { await self.fetchSiteURL(session: session) }
+            group.addTask { await self.fetchSites(session: session) }
             group.addTask { await self.fetchConfig(session: session) }
+            group.addTask { await self.fetchModelOptions(session: session) }
         }
     }
 
@@ -238,6 +280,19 @@ final class WordpressGPTViewModel: ObservableObject {
         do {
             let response: WordPressSiteURLResponse = try await session.apiClient.request("wp/site-url")
             siteURL = response.siteUrl ?? ""
+            normalizeSiteSelection()
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+    }
+
+    func fetchSites(session: UserSession) async {
+        isLoadingSites = true
+        defer { isLoadingSites = false }
+        do {
+            let response: WordPressSitesResponse = try await session.apiClient.request("wp/sites")
+            siteOptions = response.sites
+            normalizeSiteSelection()
         } catch {
             errorMessage = error.localizedDescription
         }
@@ -259,8 +314,35 @@ final class WordpressGPTViewModel: ObservableObject {
         do {
             let response: WordPressConfig = try await session.apiClient.request("wp/config")
             config = response
+            normalizeModelSelection()
         } catch {
             errorMessage = error.localizedDescription
+        }
+    }
+
+    func fetchModelOptions(session: UserSession) async {
+        isLoadingModels = true
+        defer { isLoadingModels = false }
+        do {
+            let response: ModelsResponse = try await session.apiClient.request("models")
+            modelOptions = response.models
+            normalizeModelSelection()
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+    }
+
+    private func normalizeSiteSelection() {
+        guard !siteOptions.isEmpty else { return }
+        if siteURL.isEmpty || !siteOptions.contains(where: { $0.url == siteURL }) {
+            siteURL = siteOptions[0].url
+        }
+    }
+
+    private func normalizeModelSelection() {
+        guard !modelOptions.isEmpty else { return }
+        if !modelOptions.contains(where: { $0.value == config.model }) {
+            config.model = modelOptions[0].value
         }
     }
 
@@ -328,6 +410,15 @@ struct WordPressSiteURLResponse: Codable {
     let siteUrl: String?
 }
 
+struct WordPressSitesResponse: Codable {
+    let sites: [WordPressSiteOption]
+}
+
+struct WordPressSiteOption: Codable {
+    let url: String
+    let name: String?
+}
+
 struct WordPressGenerateRequest: Codable {
     let prompt: String
     let siteUrl: String?
@@ -342,6 +433,17 @@ struct WordPressGenerateResponse: Codable {
 struct WordPressGeneration: Codable {
     let title: String
     let htmlContent: String
+}
+
+struct ModelsResponse: Codable {
+    let models: [ModelOption]
+}
+
+struct ModelOption: Codable {
+    let value: String
+    let label: String
+    let description: String?
+    let requiresReasoning: Bool
 }
 
 #Preview {

@@ -40,7 +40,7 @@ jobs:
           # generate_appcast will sign and produce appcast.xml
           printf "%s" "$SPARKLE_ED_PRIVATE_KEY" | ./bin/generate_appcast \
           --ed-key-file - \
-          --download-prefix-url "$DOWNLOAD_PREFIX" \
+          --download-url-prefix "$DOWNLOAD_PREFIX" \
           "$PWD/updates"
 
 

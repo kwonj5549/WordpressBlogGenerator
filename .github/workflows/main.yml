@@ -46,11 +46,16 @@ jobs:
 
           # Put it where your app expects it in the repo
           cp "$PWD/updates/appcast.xml" "WordpressBlogGenerator/appcast.xml"
+      - name: Checkout main branch
+        run: |
+          git fetch origin main
+          git checkout main
 
-      - name: Commit appcast.xml back to main
+      - name: Commit appcast.xml
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add WordpressBlogGenerator/appcast.xml
           git commit -m "Update appcast for ${{ github.event.release.tag_name }}" || exit 0
-          git push
+          git push origin main
+

@@ -3,12 +3,12 @@
     <channel>
         <title>Wordpress Blog Generator</title>
         <item>
-            <title>1.0.5</title>
-            <pubDate>Sat, 17 Jan 2026 16:15:27 +0000</pubDate>
-            <sparkle:version>5</sparkle:version>
-            <sparkle:shortVersionString>1.0.5</sparkle:shortVersionString>
+            <title>1.0.6</title>
+            <pubDate>Sat, 17 Jan 2026 20:55:04 +0000</pubDate>
+            <sparkle:version>6</sparkle:version>
+            <sparkle:shortVersionString>1.0.6</sparkle:shortVersionString>
             <sparkle:minimumSystemVersion>26.1</sparkle:minimumSystemVersion>
-            <enclosure url="https://github.com/kwonj5549/WordpressBlogGenerator/releases/download/v1.0.5/WordpressBlogGenerator-1.0.5.zip" length="4003850" type="application/octet-stream" sparkle:edSignature="shP4A9lgOhgd4F6QVVPHob13L2a3h5YwT4MLbQjKa3qrB0lheciZiKSy/9suO8pCGCTNK/5AHnEu7X239IWmBQ=="/>
+            <enclosure url="https://github.com/kwonj5549/WordpressBlogGenerator/releases/download/v1.0.6/WordpressBlogGenerator-1.0.6.zip" length="4003857" type="application/octet-stream" sparkle:edSignature="CDFRnnEn9IJjibpgzDvX4nbahim6SUoqeUirR6Wz7C1ncMZOpofC6YAheMoyKwqr1qf0T02iVhV6JiVsntmQAg=="/>
         </item>
     </channel>
 </rss>

@@ -1,0 +1,55 @@
+name: Update Sparkle appcast from Release
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+
+jobs:
+  appcast:
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Install Sparkle tools
+        run: |
+          curl -L -o sparkle.tar.xz https://github.com/sparkle-project/Sparkle/releases/download/2.8.1/Sparkle-2.8.1.tar.xz
+          tar -xf sparkle.tar.xz
+          ls -la
+
+      - name: Download release assets (zip)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="${{ github.event.release.tag_name }}"   # e.g. v1.0.2
+          mkdir -p updates
+          gh release download "$TAG" --pattern "*.zip" --dir updates
+          ls -la updates
+
+      - name: Generate appcast.xml
+        env:
+          SPARKLE_ED_PRIVATE_KEY: ${{ secrets.SPARKLE_ED_PRIVATE_KEY }}
+        run: |
+          TAG="${{ github.event.release.tag_name }}"
+          DOWNLOAD_PREFIX="https://github.com/${{ github.repository }}/releases/download/${TAG}/"
+
+          # generate_appcast will sign and produce appcast.xml
+          echo "$SPARKLE_ED_PRIVATE_KEY" | ./Sparkle-2.8.1/bin/generate_appcast \
+            --ed-key-file - \
+            --download-prefix-url "$DOWNLOAD_PREFIX" \
+            "$PWD/updates"
+
+          # Put it where your app expects it in the repo
+          cp "$PWD/updates/appcast.xml" "WordpressBlogGenerator/appcast.xml"
+
+      - name: Commit appcast.xml back to main
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add WordpressBlogGenerator/appcast.xml
+          git commit -m "Update appcast for ${{ github.event.release.tag_name }}" || exit 0
+          git push

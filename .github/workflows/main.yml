@@ -38,10 +38,11 @@ jobs:
           DOWNLOAD_PREFIX="https://github.com/${{ github.repository }}/releases/download/${TAG}/"
 
           # generate_appcast will sign and produce appcast.xml
-          echo "$SPARKLE_ED_PRIVATE_KEY" | ./Sparkle-2.8.1/bin/generate_appcast \
-            --ed-key-file - \
-            --download-prefix-url "$DOWNLOAD_PREFIX" \
-            "$PWD/updates"
+          printf "%s" "$SPARKLE_ED_PRIVATE_KEY" | ./bin/generate_appcast \
+          --ed-key-file - \
+          --download-prefix-url "$DOWNLOAD_PREFIX" \
+          "$PWD/updates"
+
 
           # Put it where your app expects it in the repo
           cp "$PWD/updates/appcast.xml" "WordpressBlogGenerator/appcast.xml"

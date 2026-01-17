@@ -1,14 +1,14 @@
 <?xml version="1.0" standalone="yes"?>
 <rss xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle" version="2.0">
     <channel>
-        <title>Wordpress Blog Generator5</title>
+        <title>Wordpress Blog Generator</title>
         <item>
             <title>1.0.5</title>
-            <pubDate>Sat, 17 Jan 2026 04:04:57 +0000</pubDate>
+            <pubDate>Sat, 17 Jan 2026 15:53:48 +0000</pubDate>
             <sparkle:version>5</sparkle:version>
             <sparkle:shortVersionString>1.0.5</sparkle:shortVersionString>
             <sparkle:minimumSystemVersion>26.1</sparkle:minimumSystemVersion>
-            <enclosure url="https://github.com/kwonj5549/WordpressBlogGenerator/releases/download/v1.0.5/WordpressBlogGenerator-1.0.5.zip" length="4006136" type="application/octet-stream" sparkle:edSignature="tSy2G9Yq7I1nc7CdL8v/Aw2Ja/YD4Qp9Go970cCngaJFvxRGQ7k5WoQtLPddVvPAtmUCLOwC59IY9k8jYvFVBQ=="/>
+            <enclosure url="https://github.com/kwonj5549/WordpressBlogGenerator/releases/download/v1.0.5/WordpressBlogGenerator-1.0.5.zip" length="4005866" type="application/octet-stream" sparkle:edSignature="BeI3mezJxYAgFmb+69ndTnGSCDCgpkpIho4xdgWs+nBGP4wI9nMJcPNKWmQKWul3+fPwnwp65JolzQohC3u/DQ=="/>
         </item>
     </channel>
 </rss>
